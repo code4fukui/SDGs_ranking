@@ -1,7 +1,6 @@
-
 <!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>SDGs認知度ダッシュボード</title>
-<meta property="og:title" content="SDGs認知度ダッシュボード">
+<title>SDGsダッシュボード</title>
+<meta property="og:title" content="SDGsダッシュボード">
 <meta name="format-detection" content="telephone=no">
 <script type='module'>
 
@@ -27,6 +26,7 @@ onload = async () => {
     opt.textContent = d;
     sel.appendChild(opt);
   });
+  sel.value = "SDGs施策認知度スコア";
 
   const show = async () => {
     const name = sel.value;
@@ -170,7 +170,7 @@ a {
 </head>
 <body>
 
-<h1>SDGs認知度ダッシュボード</h1>
+<h1>SDGsダッシュボード</h1>
 
 <select id=sel></select>
 
@@ -179,8 +179,8 @@ a {
 <!--<div id=lastUpdate></div>-->
 
 <div class="credit">
-APP: CC BY <a href=https://fukuno.jig.jp/3335>@taisukef 福野泰介</a><br>
-DATA: <a href="https://www.houjin-bangou.nta.go.jp/">国税庁法人番号公表サイト</a> → (CSV化ツール by <a href="https://github.com/code4fukui/gBizINFO/">gBizINFO</a>)<br>
+APP: <a href=https://github.com/code4fukui/SDGs_ranking/>SDGsダッシュボード</a> CC BY <a href=https://fukuno.jig.jp/3383>@taisukef 福野泰介</a><br>
+DATA: <a href="https://project.nikkeibp.co.jp/atclppp/PPP/report/090200284/">ビジネスパーソンに聞く都道府県「SDGs認知度」ランキング＜2021＞｜新・公民連携最前線｜PPPまちづくり</a> →  by <a href=https://js.sabae.cc/scrapeCSV.js>HTML CSV化ツール scrapeCSV.js</a><br>
 LAYOUT: <a href=https://www.stopcovid19.jp/tabularmapsjapan.csv>TabularMaps Japan - 日本カラム地図 CSV</a> CC0 <a href=https://github.com/tabularmaps/hq>カラム地図 / TabularMaps on Github</a><br>
 </div>
 
