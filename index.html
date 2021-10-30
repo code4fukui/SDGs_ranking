@@ -1,0 +1,188 @@
+
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>SDGs認知度ダッシュボード</title>
+<meta property="og:title" content="SDGs認知度ダッシュボード">
+<meta name="format-detection" content="telephone=no">
+<script type='module'>
+
+import { CSV } from "https://js.sabae.cc/CSV.js";
+import { encodeHTML } from "https://js.sabae.cc/encodeHTML.js";
+import tabularmaps from 'https://www.stopcovid19.jp/tabularmapsjapan.mjs';
+
+const showunit = "";
+
+onload = async () => {
+  const data = CSV.toJSON(await CSV.fetch("./sdgs-ranking-japan.csv"));
+  console.log(data);
+
+  data.forEach(d => {
+    d["SDGsスコア(平均)"] = ((parseFloat(d.SDGs認知度スコア) + parseFloat(d.SDGs施策認知度スコア)) / 2).toFixed(1);
+  });
+
+  Object.keys(data[0]).forEach(d => {
+    if (d == "都道府県名") {
+      return;
+    }
+    const opt = document.createElement("option");
+    opt.textContent = d;
+    sel.appendChild(opt);
+  });
+
+  const show = async () => {
+    const name = sel.value;
+    
+    const getKPI = (pname, cname) => {
+      const p = data.find(d => d.都道府県名 == cname)[name];
+      const kpi = p; // ? p.length : 0;
+      console.log(cname, name, kpi); // pname, cname, name, data.indexOf(cname), data[data.indexOf(cname)]);
+      const unit = showunit;
+      return [kpi, unit];
+    };
+    const colorTabularMaps = (pname, tmap) => {
+      let min = 100;
+      let max = 0;
+      
+      for (const c of tmap.children) {
+        const cname = c.cellname;
+        if (cname !== "-") {
+          const [kpi, _] = getKPI(pname, cname);
+          if (isNaN(kpi)) continue;
+          if (kpi < min) { min = kpi; }
+          if (kpi > max) { max = kpi; }
+        }
+      }
+      
+      for (const c of tmap.children) {
+        const cname = c.cellname;
+        if (cname !== "-") {
+          const [kpi, _] = getKPI(pname, cname);
+          if (isNaN(kpi)) {
+            continue;
+          }
+          const n = (parseFloat(kpi) - min) / (max - min);
+          const h = 30;
+          const s = 90;
+          const l = 100 - n * 40;
+          const col = `hsl(${h},${s}%,${l}%)`;
+          //const col = `rgba(200,50,50,${l / 100 * .5})`;
+          c.style.backgroundColor = col;
+          c.style.color = "black";
+          //c.appendChild(val);
+          //console.log(kpi, l, col);
+        }
+      }
+    };
+    const setCellContent = (c, pname, cname) => {
+      c.textContent = "";
+      const cr = tag => document.createElement(tag);
+      const div = cr("div");
+      div.className = "name";
+      div.textContent = cname;
+      c.appendChild(div);
+      const div2 = cr("div");
+      div2.className = "val";
+      const [kpi, unit] = getKPI(pname, cname);
+      div2.textContent = (isNaN(kpi) ? "-" : kpi) + unit;
+      c.appendChild(div2);
+      c.onclick = () => {
+        detail.innerHTML = (prefs[cname] || []).map(d => encodeHTML(d.name)).map(name => `<a href="https://www.google.com/search?q=${name}">${name}</a>`).join(", ");
+        //const url = "https://www.stopcovid19.jp/beds_graph.html#" + cname;
+        //window.open(url, "_blank");
+      };
+    };
+    tabularmaps.showJapan(setCellContent, colorTabularMaps, true);
+  }
+
+  /*
+  const nsel = document.location.hash.substring(1) || 0;
+  sel.value = nsel;
+  */
+  sel.onchange = () => {
+    const nsel = sel.value;
+    /*
+    if (nsel) {
+      document.location.hash = "#" + nsel;
+    } else {
+      history.replaceState(null, null, " ");
+    }
+    */
+    show();
+  };
+  
+  await show();
+};
+
+</script>
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+h1 {
+  margin: 0 0 .5em;
+  font-size: 4vw;
+  padding: 2vw 0;
+  background-color: #f48a4d;
+  color: white;
+}
+/* tabularmaps */
+#tmapc {
+  max-width: 700px;
+  margin: 0 auto;
+}
+#tmapc span {
+  font-size: min(1.5vmax, 15px);
+  align-items: center;
+  justify-content: center;
+  border-radius: .5vmax;
+  border: .1vmax solid #333;
+  padding: .2vmax .2vmax;
+  margin: .2vmax;
+}
+/* other */
+select {
+  font-size: 20px;
+  margin: 0 0 .5em 0;
+}
+#detail {
+  text-align: left;
+  padding: .3em;
+  font-size: 90%;
+  overflow: scroll;
+  display: inline-block;
+  border: 1px solid gray;
+  width: 90vw;
+  max-width: 700px;
+  height: 10em;
+}
+/* credit */
+.credit {
+  margin: 20px;
+  text-align: center;
+  font-size: 80%;
+}
+a {
+  color: #666 !important;
+}
+</style>
+</head>
+<body>
+
+<h1>SDGs認知度ダッシュボード</h1>
+
+<select id=sel></select>
+
+<div id="tmapc"></div>
+<br>
+<!--<div id=lastUpdate></div>-->
+
+<div class="credit">
+APP: CC BY <a href=https://fukuno.jig.jp/3335>@taisukef 福野泰介</a><br>
+DATA: <a href="https://www.houjin-bangou.nta.go.jp/">国税庁法人番号公表サイト</a> → (CSV化ツール by <a href="https://github.com/code4fukui/gBizINFO/">gBizINFO</a>)<br>
+LAYOUT: <a href=https://www.stopcovid19.jp/tabularmapsjapan.csv>TabularMaps Japan - 日本カラム地図 CSV</a> CC0 <a href=https://github.com/tabularmaps/hq>カラム地図 / TabularMaps on Github</a><br>
+</div>
+
+</body>
+</html>
