@@ -17,4 +17,4 @@ The project uses data scraped from the following online report:
 - [SDGs Awareness Ranking of Prefectures in Japan <2021> | Public-Private Partnership Frontline | PPP Town Development](https://project.nikkeibp.co.jp/atclppp/PPP/report/090200284/)
 
 ## License
-MIT License
+MIT License — see [LICENSE](LICENSE).
